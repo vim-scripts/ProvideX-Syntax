@@ -1,0 +1,9 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1206
+
+ProvideX is a Business Basic dialect used within the popular Mas90/200 accounting product lines, as well as many other business software products.
+
+I do not advocate the use of providex.  I only hope to aide those who have found themselves in the position of working with it as I have :-)
+
+Pointers were taken from many syntax files, mainly the basic.vim syntax file from Allan Kelly. <allan@fruitloaf.co.uk>
+
+Update: I no longer work with ProvideX!  Congratulations are welcome :-)
