@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:		ProvideX
-" Maintainer:	Leonard J. Clark <lclark@2bdx.net>
-" Last Change:	2005 Feb 14
+" Maintainer:	Leonard Clark <lclark@2bdx.net>
+" Last Change:	2005 April 26
 " Remark:		The language blows.  But working with it doesn't have to.
 
 if version < 600
@@ -59,7 +59,7 @@ syn keyword pvxFunction		TAN TBL TCB TMR TRX TSK TXH TXW UCS UPK VIN VIS XEQ
 syn keyword pvxFunction		XFA XOR
 syn match	pvxFunction		"@X\|@Y"
 
-syn keyword	pvxArguments	KNO	DOM IND IOL FROM TO WHERE
+syn keyword	pvxArguments	KNO	DOM IND IOL FROM TO WHERE OR STEP
 
 " System Variables
 syn keyword pvxVariables	BKG CHN CTL DAY DLM DSZ EOM ERR ERS ESC GFN GID HFN
@@ -70,8 +70,12 @@ syn keyword pvxVariables	TSM UID UNT WHO
 " Comments
 syn keyword	pvxTodo	contained	TODO
 syn keyword pvxTodo contained	XXX
-syn region	pvxComment	start="REM"	end="$"	contains=pvxTodo
-syn region	pvxComment	start="!"	end="$" contains=pvxTodo
+syn match	pvxWTF	contained	"???"
+syn region	pvxComment	start="REM"	end="$"	contains=pvxTodo,pvxWTF
+syn region	pvxComment	start="!"	end="$" contains=pvxTodo,pvxWTF
+syn region	pvxComment	start="!\*"			end="\*!"		contains=pvxTodo,pvxWTF	
+
+syn region	pvxDocumentation	start="^=begin"	end="^=end.*$"	contains=pvxTodo,pvxWTF fold
 
 " Path Modifiers
 syn match	pvxPathModifier	contained	"\[[A-Za-z][A-Za-z][A-Za-z]\]"
@@ -88,19 +92,28 @@ syn match	pvxNumber		"\.\d\+\>"
 " Misc
 syn match	pvxFileNumber	"\w*_chan"
 syn match	pvxFileNumber	"\w*FH"
-syn match	pvxNomadsCtl	"\w*\.ctl"
-syn match	pvxFn			"fn%[0-9a-zA-Z_\-]*\$\?"
+syn match	pvxNomadsCtl	"\(fldr\.\)\?\w*\.ctl"
+syn match	pvxNomadsCtl	"\w*\.grp\$\|\w*\.tag\$"
+syn match	pvxFn			"fn%\?[0-9a-zA-Z_\-]*\$\?"
 syn match	pvxHex			"\$[0-9a-fA-F]*\$"
 syn match	pvxLabel		"^\w*:"
 syn region	pvxLineNumber	start="^\d"	end="\s"
 syn match	pvxMnemonic		"'\w*'"
-syn match	pvxOperator		"-\|=\|[:<>+\*^/\\]"
+syn match	pvxOperator		"-\|[:<>+\*^/\\]"
+syn match	pvxOperator		"_="
 syn match	pvxTypeSpec		"[a-zA-Z0-9_][\$%&!#]"ms=s+1
 
 syn match	pvxNewline		"\\$"
+syn match	pvxNewline		"\\\s*!.*!$"	contains=pvxComment,pvxTodo,pvxWTF
+syn match	pvxShortcuts	"@[a-z_0-9]\+\|||=\|\.nil?\|\.empty?"
 
 " PreProcessor
 syn keyword	pvxPreProc		__init_pgm__ __exit_pgm__ __break__ __copyright__
+
+" Object Oriented Crap
+syn match	pvxObject			"\<_OBJ\>\|\<self\>\|\<this\>"
+syn match	pvxObjectProperty	"|\?'[A-Za-z][A-Za-z0-9_]*$\?"
+
 
 if version >= 508 || !exists("did_basic_syntax_inits")
 	if version < 508
@@ -110,10 +123,9 @@ if version >= 508 || !exists("did_basic_syntax_inits")
 		command -nargs=+ HiLink hi def link <args>
 	endif
 
-	"HiLink pvxIfBlock			Comment
 	HiLink pvxArguments			Identifier
 	HiLink pvxComment			Comment
-	HiLink pvxNewline			Special
+	HiLink pvxDocumentation		Comment
 	HiLink pvxDirective			Statement
 	HiLink pvxFileNumber		Type
 	HiLink pvxFn				Special
@@ -122,25 +134,22 @@ if version >= 508 || !exists("did_basic_syntax_inits")
 	HiLink pvxLabel				Label
 	HiLink pvxLineNumber		Label
 	HiLink pvxMnemonic			Special
-	HiLink pvxNumber			Number
+	HiLink pvxNewline			Special
 	HiLink pvxNomadsCtl			Special
+	HiLink pvxNumber			Number
+	HiLink pvxObject			Special
+	HiLink pvxObjectProperty	Special
 	HiLink pvxOperator			Type
 	HiLink pvxPathModifier		Special
 	HiLink pvxPreProc			Identifier
+	HiLink pvxShortcuts			Special
 	HiLink pvxString			String
 	HiLink pvxTodo				Todo
 	HiLink pvxTypeSpec			Type
 	HiLink pvxVariables			Identifier
+	HiLink pvxWTF				Error
 
 	delcommand HiLink
 endif
 
 let b:current_syntax = "providex"
-
-inoremap ( ()<Left>
-inoremap [ []<Left>
-inoremap { {<cr>}<Esc>O
-
-" Jump outside teh current []/()/{} enclosure
-map  /[)}\]]<cr>:noh<cr>a 
-inoremap  <Esc>/[)}\]]<cr>:noh<cr>a 
